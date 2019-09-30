@@ -6,7 +6,7 @@
 # note that the function takes four arguments:
 # samples is the number of samples to draw from the model
 # rate.1 is the evidence accumulation rate for the correct response (default value is 40)
-# rate.1 is the evidence accumulation rate for the incorrect response (default value is 40)
+# rate.2 is the evidence accumulation rate for the incorrect response (default value is 40)
 # criterion is the threshold for a response (default value is 3)
 
 # one oddity: note that higher values for rate.1 and rate.2 will actually produce slower RTs.
@@ -14,16 +14,43 @@
 # so faster rates mean that less evidence is likely to accumulate on each step. we could make
 # these parameters more intuitive by taking 1/rate.1 and 1/rate.2 as the values to rexp().
 
-accumulator.model <- function(samples, rate.1=40, rate.2=40, criterion=3){
-  
+#instead of a single value moving to two boundaries, we have two values racing to a single
+#boundary. rising at different rates. if both hit, the one with >
 
+accumulator.model <- function(samples, rate.1=40, rate.2=40, criterion=3){
+  rt <- rep(0, samples)
+  accuracy <- logical()
+  evidence.1 <- 0
+  evidence.2 <- 0
+  for (i in 1: samples){
+    while ((evidence.1<criterion) & (evidence.2<criterion)) {
+      trial <- rexp(1, rate = rate.1)
+      evidence.1 = trial + evidence.1
+      evidence.2 = trial + evidence.2
+      rt[i] = rt[i] +1
+    }
+    if ((evidence.1||evidence.2) > criterion){
+      accuracy[i] <- TRUE
+    }
+    else {
+      accuracy[i] <- FALSE
+    }
+  }
+  
   output <- data.frame(
-    correct = accuracy.array,
-    rt = rt.array
+    correct = accuracy,
+    rt = rt
   )
   
   return(output)
 }
+
+
+# rate <-rexp(1)
+# if (rate==abs(rate)){
+#   true.eviaccu <- true.eviaccu + rate}
+#   else{
+#     false.eviaccu <- false.eviaccu + rate
 
 # test the model ####
 
