@@ -18,18 +18,25 @@
 #boundary. rising at different rates. if both hit, the one with >
 
 accumulator.model <- function(samples, rate.1=40, rate.2=40, criterion=3){
-  rt <- rep(0, samples)
-  accuracy <- logical()
-  evidence.1 <- 0
-  evidence.2 <- 0
+  #moving some the stuff below into the for loop
+   rt <- rep(0, samples)
+   accuracy <- logical()
+  # evidence.1 <- 0
+  # evidence.2 <- 0
   for (i in 1: samples){
-    while ((evidence.1<criterion) & (evidence.2<criterion)) {
-      trial <- rexp(1, rate = rate.1)
-      evidence.1 = trial + evidence.1
-      evidence.2 = trial + evidence.2
+    evidence.1 <- 0
+    evidence.2 <- 0
+    while ((evidence.1<criterion) && (evidence.2<criterion)) {
+      #need to individualize trial to each evidence
+      #trial <- rexp(1, rate = rate.1)
+      evidence.1 = rexp(1, rate = rate.1) + evidence.1
+      evidence.2 = rexp(1, rate = rate.2) + evidence.2
       rt[i] = rt[i] +1
     }
-    if ((evidence.1||evidence.2) > criterion){
+    #need to rewrite this or
+    #turns out it needs to be if one is greater than other not or
+    if (evidence.1 > evidence.2){
+    #((evidence.1>criterion)||(evidence.2>criterion)){
       accuracy[i] <- TRUE
     }
     else {
